@@ -83,13 +83,13 @@ Goal of classification
 \end{itemize}
 \vspace{0.5cm}
 Linear Regression
-%\pause
+\pause
 \begin{itemize}
 \item Linear dependence of output on the weights
 \end{itemize}
 \vspace{0.5cm}
 Linear Classification
-%\pause
+\pause
 \begin{itemize}
 \item Linear decision boundaries
 \end{itemize}
@@ -105,7 +105,7 @@ Decision boundaries
 \item Points of input space where several classes have same probability
 \end{itemize}
 \vspace{0.2cm}
-Definition of decision boundary for binary classification:
+Definition of decision boundary:
 \begin{equation*}
 \{ x:(\hat{\beta}_{k0} - \hat{\beta}_{m0}) + 
 (\hat{\beta}_{k} - \hat{\beta}_{m})^Tx = 0\}
@@ -118,6 +118,7 @@ Linear classification:
 \begin{itemize}
 \item[•] Decision boundaries are hyperplanes
 \end{itemize}
+\pause
 This is the case if 
 \begin{itemize}
 \item[•] posterior probability $Pr(G=k|X=x)$ is linear in x
@@ -162,7 +163,7 @@ $X_1,X_2,X_1^2, X_2^2, X_1 X_2$
 \vspace{0.2cm}
 \item[•] Classification via 
 \begin{equation*}
-\hat{f}(x)^T=(1,x^T)\hat{\mathbf{B}}
+\hat{f}(x)=\hat{\mathbf{B}}[1,x^T]^T
 \end{equation*}
 \begin{equation*}
 \hat{G}(x) = argmax_{k \in \mathcal{G}} \hat{f}_k(x)
@@ -173,7 +174,8 @@ $X_1,X_2,X_1^2, X_2^2, X_1 X_2$
 
 \begin{frame}{Problems with Linear Regression Approach}
 \begin{itemize}
-\item[•] Limited interpretability of $\hat{f_k}(x)$ as $Pr(G=k|X=x)$, negative and greater 1 values possible
+\item[•] Limited interpretability of $\hat{f_k}(x)$ as class probability, negative and greater 1 values possible
+\pause
 \item[•] Class masking effects
 
 \vspace{0.8cm}
@@ -210,6 +212,7 @@ Linear Discriminant Analysis
 \begin{itemize}
 \item[•] Class posteriors $Pr(G|X)$ is needed for optimal classification
 \item[•] With class-conditional density $f_k(x)=Pr(X=x|G=k)$ \\ and prior $\pi_k = Pr(G=k)$, 
+\pause
 \begin{equation*}
 Pr(G=k|X=x)=\frac{f_k(x)\pi_k}{\sum_{j=1}^{K}f_j(x)\pi_j}
 \end{equation*}
@@ -223,10 +226,10 @@ f_k(x)=\frac{1}{(2\pi)^{p/2}|\Sigma_k|^{1/2}}e^{-\frac{1}{2}(x-\mu_k)^T\Sigma_k^
 \end{equation*}
 with
 \begin{equation*}
-\hat{\pi_k} = \frac{N_k}{N}
+\hat{\pi}_k = \frac{N_k}{N}
 \end{equation*}
 \begin{equation*}
-\hat{\mu_k}=\sum_{g_i=k}\frac{x_i}{N_k}
+\hat{\mu}_k=\sum_{g_i=k}\frac{x_i}{N_k}
 \end{equation*}
 \begin{equation*}
 \hat{\Sigma}=\sum_{k=1}^K\sum_{g_i=k}\frac{(x_i-\hat{\mu}_k)(x_i-\hat{\mu}_k)^T}{N-K}
@@ -286,16 +289,39 @@ QDA $(\Sigma_j \neq \Sigma_k)$
 \end{frame}
 
 \begin{frame}{Logistic Regression}
+\begin{center}
+\includegraphics[width=0.4\textwidth]{logistic_function.png}
+\end{center}
 Squash network output $\mathbb{R}\rightarrow [0,1]$ using
 \begin{equation*}
 \sigma(x) = \frac{1}{1+e^{-x}}
 \end{equation*}
-\includegraphics[width=\textwidth]{logistic_function.png}
-
+\pause
+Network output is modeled as the log-odds:
+\begin{equation*}
+\beta^T x = \frac{p_1}{p_0} = \frac{p_1}{1-p_1}
+\end{equation*}
+Inverse of sigmoid function is called logit function.
 \end{frame}
 
 \begin{frame}{Fitting Logistic Regression}
-
+\begin{itemize}
+\item[•] Log-likelihood for N observations:
+\begin{equation*}
+L(\theta) = \sum_{i=1}^N \log p_{g_i}(x_i)
+\end{equation*}
+\pause
+For the binary case with the target $y_i \in \{0,1\}$:
+\begin{equation*}
+L(\theta) = \sum_{i=1}^N y_i \beta^T x_i - log(1+e^{\beta^T x_i})
+\end{equation*}
+\pause
+To maximize log-likelihood:
+\begin{equation*}
+\frac{\partial L(\theta)}{\partial \beta} = \sum_{i=1}^N y_i x_i(y_i-p(x_i))=0
+\end{equation*}
+\item[•] Solved iteratively with IRLS (Iteratively reweighted least squares), a variant of the Newton-Raphson algorithm 
+\end{itemize}
 \end{frame}
 
 \begin{frame}{Example: South African Hearth Disease}
@@ -327,11 +353,30 @@ Model selection strategies:
 
 
 \begin{frame}{$L_1$ Regularized Logistic Regression}
-\includegraphics[width=\textwidth]{L1.png}
+\begin{equation*}
+{}^{\lambda}L(\theta) = \sum_{i=1}^N y_i \beta^T x_i - log(1+e^{\beta^T x_i}) - \lambda \sum_{j=1}^p |\beta_j|
+\end{equation*}
+\begin{center}
+\includegraphics[width=0.8\textwidth]{L1.png}
+\end{center}
 \end{frame}
 
 \begin{frame}{Logistic Regression vs. LDA}
-
+\begin{itemize}
+\item[•] Mathematically identical models:
+\begin{itemize}
+\item[•] Log-odds are linear function of inputs in both cases
+\item[•] In LDA linearity results from
+Gaussian assumption, in Logistic Regression it is a modeling decision.
+\end{itemize}
+\item[•] Difference in fitting parameters: 
+\begin{itemize}
+\item[•] By estimating Gaussian parameters, LDA maximizes full log-likelihood $Pr(X,G)$
+\item[•] Logistic Regression maximizes conditional likelihood $Pr(G|X)$
+\end{itemize}
+\item[•] Logistic Regression is 'generally felt' to be safer and more robust
+\item[•] ESL claims: Similar results in practice, even if LDA assumptions are violated (e.g. qualitative predictors)
+\end{itemize}
 \end{frame}
 
 
